@@ -16,7 +16,6 @@ private:
     std::vector <TopologyNodeType*> created_nodes;
 };
 
-
 template <class TopologyNodeType>
 TopologyNodeDomain<TopologyNodeType>::~TopologyNodeDomain() {
     for (auto * node : created_nodes)

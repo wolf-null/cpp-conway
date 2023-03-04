@@ -6,6 +6,7 @@
 
 #include "lib/topology/node.cpp"
 #include "lib/topology/domain.cpp"
+#include "lib/topology/summation_node.cpp"
 
 const int MAX_NEIGHBORS = 2;
 
@@ -32,5 +33,9 @@ int main(){
     std::cout << "enter _main\n";
     _main(nodeDomain);
     std::cout << "exit _main\n";
+
+    auto * sNode1 = new SummationTopologyNode <int, 2>{1};
+    delete sNode1;
+
     return 0;
 }

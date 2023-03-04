@@ -3,13 +3,16 @@
 #include <iostream>
 #include <stdexcept>
 
-template <class ValueType, const int MAX_NEIGHBOURS>
+template <class ValueType, const int maxNeighbours>
 class TopologyNode {
 public:
     const int NOT_A_NEIGHBOR = -1;
 
+    typedef ValueType VALUE_TYPE;
+    const int MAX_NEIGHBOURS = maxNeighbours;
+
     explicit TopologyNode(const int id) : _id{id} {}
-    ~TopologyNode() {delete &_value;};
+    ~TopologyNode() = default;
 
     const ValueType& value(){return &_value;};
     void setValue(ValueType & value){_value = value;}
@@ -18,16 +21,17 @@ public:
     auto unsubscribeFrom(const auto *neighbor);
 
     int id(){return _id;}
+    int neighbourCount() {return _neighborCount;}
 
     void printNeighbourIds();
 
-private:
-    ValueType _value;
-    const int _id;
-    int _neighborCount = 0;
-    TopologyNode <ValueType, MAX_NEIGHBOURS> * _neighbors [MAX_NEIGHBOURS];
-
 protected:
+    const int _id;
+    ValueType _value;
+
+    int _neighborCount = 0;
+    TopologyNode <ValueType, maxNeighbours> * _neighbors [maxNeighbours];
+
     int neighbourIndex(const auto *neighbor) const;
     auto neighbourAt(const int neighborIndex = 0);
     auto unsubscribeByIndex(const int neighborIndex = 0);
@@ -50,7 +54,7 @@ auto TopologyNode<ValueType, MAX_NEIGHBOURS>::neighbourAt(const int neighborInde
 template <class ValueType, const int MAX_NEIGHBOURS>
 auto TopologyNode<ValueType, MAX_NEIGHBOURS>::subscribeTo(auto *neighbour){
     if (_neighborCount == MAX_NEIGHBOURS)
-        throw std::out_of_range("Attempt to add neighbor exceeds MAX_NEIGHBOURS constant");
+        throw std::out_of_range("Attempt to add neighbor exceeds maxNeighbours constant");
     _neighbors[_neighborCount] = neighbour;
     _neighborCount ++;
     return this;
