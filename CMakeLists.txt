@@ -8,7 +8,6 @@ add_executable(cpp__konway
         lib/topology/node.cpp
         lib/topology/domain.cpp
         lib/topology/summation_node.cpp
-        lib/topology/generators/2d_taxicab.cpp
         )
 
 include_directories(lib)
