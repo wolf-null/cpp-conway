@@ -8,6 +8,6 @@ add_executable(cpp__konway
         lib/topology/node.cpp
         lib/topology/domain.cpp
         lib/topology/summation_node.cpp
-        lib/indices/taxicab_2d_index.cpp)
+        lib/indices/taxicab_2d_index.cpp lib/topology/node.h)
 
 include_directories(lib)
