@@ -3,10 +3,12 @@
 #include "node.cpp"
 #include <vector>
 
-template <class TopologyNodeType>
+template < TopologyNodeConcept TopologyNodeType>
 class TopologyNodeDomain
 {
 public:
+    typedef TopologyNodeType NODE_TYPE;
+
     TopologyNodeDomain() {_last_id = 1;};
     ~TopologyNodeDomain() ;
 
@@ -16,13 +18,15 @@ private:
     std::vector <TopologyNodeType*> created_nodes;
 };
 
-template <class TopologyNodeType>
+template <TopologyNodeConcept TopologyNodeType>
 TopologyNodeDomain<TopologyNodeType>::~TopologyNodeDomain() {
     for (auto * node : created_nodes)
         delete node;
 }
 
-template <class TopologyNodeType>
+// ----------------------------------------------- IMPLEMENTATION -----------------------------------------------------
+
+template <TopologyNodeConcept TopologyNodeType>
 TopologyNodeType * TopologyNodeDomain<TopologyNodeType>::newNode(){
     auto * node = new TopologyNodeType {_last_id};
     created_nodes.push_back(node);

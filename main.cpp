@@ -8,14 +8,16 @@
 #include "lib/topology/domain.cpp"
 #include "lib/topology/summation_node.cpp"
 
-const int MAX_NEIGHBORS = 2;
 
+const int MAX_NEIGHBORS = 2;
 void _main(TopologyNodeDomain<TopologyNode<int, MAX_NEIGHBORS>> & nodeDomain) {
+
     std::cout << "create nodes\n";
     auto node_1 = nodeDomain.newNode();
     auto node_2 = nodeDomain.newNode();
     auto node_3 = nodeDomain.newNode();
 
+    std::cout << "tid = " << typeid(node_1).name() << "\n";
     std::cout << "connect nodes\n";
     node_1->subscribeTo(node_2);
     node_1->subscribeTo(node_3);
