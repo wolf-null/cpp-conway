@@ -33,3 +33,52 @@ Which one is faster?
 1. Remembers N previous states.
 2. ```.iteration``` is increased each time ```operator=(HistoricalInt)``` is called like y.t = x.t + 1
 3. Implementation of ```operator=(&&HistoricalInt)``` is reasonable (but more like just for fun)
+
+
+### Arch ###
+#### TopologyNodeStructure ####
+Probably not all nodes has value.
+*Solutions for traversing nodes:*
+  1. Reserve value anyway. Set it to zero (could cause arithmetic problems when "zero is not zero")
+  2. Add compile-time constant property ```.has_value```  for ```TopologyNode``` 
+  3. Inherit ```TopologyNodeWithValue``` from ```TopologyNode``` and use ```std::derived_from``` during indexing
+
+*Bad arch*
+Having non-abstract base interface class indicates current solution (template derived from interface) to be bad formed.
+Question: why do we need that abstract interface at the moment?
+Answer: To build ```TopologyNodeDomain``` class. In particular: having NodeType explicitly allows it to declare 
+Objection: 
+   - ```NodeDomain``` could probably build multiple types of ```TopologyNode```s and inheritors.
+   - But all it needs a-priori is a specific interface
+   - But the return type of the interface is not fixed
+   - Actually all NodeDomain needs is access to constructor and destructor
+
+...
+
+Okay. Why did i made TopologyNodeDomain for real?
+1. For generating unique ID for each Node in the domain
+(type of node doesn't matter). 
+2. Ability to hold and pass the bunch of nodes in a system to some fuction
+3. A thing which guarantees lifetime for all nodes at leas not less than that thing's lifetime
+4. Simultaneous memory cleanup (deletion) from one point
+
+Propositions:
+- All destructors in C++ has no parameters. Polymorphism allows to invoke destructor of base (abstract) classwithout
+knowing certain class of implementation. It also allows to store vector of a base class only.
+- Setting node id requires only one method: set id
+- Creation of a node implies having direct access to NodeDomain. So node creation is possible only if domain instance is accessible from the "creation point"
+- Overloading TopologyNode with NodeDomain is not a good idea because of template args overcomplication.
+
+Conclusion:
+- Nodes are inherited from abstract class ```AbstractTopologyNode``` which has _id property, constructor and destructor (non-virtual).
+- ```TopologyNodeDomain``` has method const int register_id(```AbstractTopologyNode&&```) which saves it into own array, sets the id and returns a pointer to registred object
+Two scenarios:
+1. ConcreteTopologyNode constructor receives TopologyNodeDomain as an argument. It then reqiest an ID for itself by ```register_id(this)```
+   - Possible problem: nothing guarantees lifetime of ConcreteTopologyNodeInstance 
+2. ConcreteTopologyNode constructor doesn't receive TopologyNodeDomain, but then TopologyNodeDomainInstance.register_id(&&ConcreteTopologyNodeInstance)
+   - Seems better
+
+Anyway i can make them both!
+
+
+

@@ -4,10 +4,32 @@
 #include <stdexcept>
 #include <vector>
 
-#include "lib/topology/node.cpp"
+#include "lib/topology/node.h"
 #include "lib/topology/domain.cpp"
 #include "lib/topology/summation_node.cpp"
 
+int main()
+{
+    const int MAX_NEIGHBORS = 2;
+
+    TopologyNodeDomain d;
+
+    auto *node_a = d.register_id(new ValuedTopologyNode<MAX_NEIGHBORS, int>{});
+    auto *node_b = d.register_id(new ValuedTopologyNode<MAX_NEIGHBORS, int>{});
+
+    node_a->subscribeTo(node_a);
+    node_a->subscribeTo(node_b);
+
+    node_a->printNeighbourIds();
+
+    node_a->unsubscribeFrom(node_a);
+
+    node_a->printNeighbourIds();
+
+    return 0;
+}
+
+/*
 
 const int MAX_NEIGHBORS = 2;
 void _main(TopologyNodeDomain<TopologyNode<int, MAX_NEIGHBORS>> & nodeDomain) {
@@ -40,4 +62,4 @@ int main(){
     delete sNode1;
 
     return 0;
-}
+}*/
