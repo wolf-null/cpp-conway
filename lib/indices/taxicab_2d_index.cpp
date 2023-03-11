@@ -14,5 +14,4 @@
 
 #include "topology/node.h"
 #include "topology/domain.h"
-#include "topology/summation_node.cpp"
 

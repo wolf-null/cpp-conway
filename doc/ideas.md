@@ -46,7 +46,7 @@ Probably not all nodes has value.
 *Bad arch*
 Having non-abstract base interface class indicates current solution (template derived from interface) to be bad formed.
 Question: why do we need that abstract interface at the moment?
-Answer: To build ```TopologyNodeDomain``` class. In particular: having NodeType explicitly allows it to declare 
+Answer: To build ```NodeDomain``` class. In particular: having NodeType explicitly allows it to declare 
 Objection: 
    - ```NodeDomain``` could probably build multiple types of ```Node```s and inheritors.
    - But all it needs a-priori is a specific interface
@@ -55,7 +55,7 @@ Objection:
 
 ...
 
-Okay. Why did i made TopologyNodeDomain for real?
+Okay. Why did i made NodeDomain for real?
 1. For generating unique ID for each Node in the domain
 (type of node doesn't matter). 
 2. Ability to hold and pass the bunch of nodes in a system to some fuction
@@ -71,11 +71,11 @@ knowing certain class of implementation. It also allows to store vector of a bas
 
 Conclusion:
 - Nodes are inherited from abstract class ```AbstractNode``` which has _id property, constructor and destructor (non-virtual).
-- ```TopologyNodeDomain``` has method const int register_id(```AbstractNode&&```) which saves it into own array, sets the id and returns a pointer to registred object
+- ```NodeDomain``` has method const int register_id(```AbstractNode&&```) which saves it into own array, sets the id and returns a pointer to registred object
 Two scenarios:
-1. ConcreteTopologyNode constructor receives TopologyNodeDomain as an argument. It then reqiest an ID for itself by ```register_id(this)```
+1. ConcreteTopologyNode constructor receives NodeDomain as an argument. It then reqiest an ID for itself by ```register_id(this)```
    - Possible problem: nothing guarantees lifetime of ConcreteTopologyNodeInstance 
-2. ConcreteTopologyNode constructor doesn't receive TopologyNodeDomain, but then TopologyNodeDomainInstance.register_id(&&ConcreteTopologyNodeInstance)
+2. ConcreteTopologyNode constructor doesn't receive NodeDomain, but then TopologyNodeDomainInstance.register_id(&&ConcreteTopologyNodeInstance)
    - Seems better
 
 Anyway i can make them both!

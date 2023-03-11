@@ -1,23 +1,25 @@
-//
-// Created by Mann on 11.03.2023.
-//
-#pragma once
+#ifndef CPP__CONWAY_SUMMATION_NODE__TEST_H
+#define CPP__CONWAY_SUMMATION_NODE__TEST_H
 
 #include <cassert>
 
 #include "topology/node.h"
-#include "topology/domain.cpp"
-#include "topology/summation_node.cpp"
+#include "topology/domain.h"
+#include "topology/value_node.h"
+#include "topology/summation_node.h"
 
-namespace summation_node_test {
+namespace topology_tests {
+
     template <class T, T SeedValue = T{}>
     void _test_neighbour_sum(const T a_value, const T b_value) {
+        using namespace topology;
+
         const int MAX_NEIGHBORS = 3;
 
-        TopologyNodeDomain d;
+        NodeDomain d;
 
-        auto *node_a = d.register_id(new SummationTopologyNode<MAX_NEIGHBORS, T, SeedValue>{a_value});
-        auto *node_b = d.register_id(new SummationTopologyNode<MAX_NEIGHBORS, T, SeedValue>{b_value});
+        auto *node_a = d.register_id(new SummationNode<MAX_NEIGHBORS, T, SeedValue>{a_value});
+        auto *node_b = d.register_id(new SummationNode<MAX_NEIGHBORS, T, SeedValue>{b_value});
         auto *node_c = d.register_id(new Node<MAX_NEIGHBORS>{});
 
         node_a->subscribe_to(node_a);
@@ -30,3 +32,5 @@ namespace summation_node_test {
         assert (sum == a_value + b_value + SeedValue);
     }
 }
+
+#endif //CPP__CONWAY_SUMMATION_NODE__TEST_H

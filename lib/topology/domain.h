@@ -1,28 +1,50 @@
-#ifndef CPP__KONWAY_DOMAIN_H
-#define CPP__KONWAY_DOMAIN_H
+#ifndef CPP__CONWAY_DOMAIN_H
+#define CPP__CONWAY_DOMAIN_H
 
 #include <vector>
 
 #include "node.h"
 
-class TopologyNodeDomain
-{
-public:
-    TopologyNodeDomain() {_last_id = 1;};
-    ~TopologyNodeDomain() {
-        for (auto * node : _nodes)
-            delete node;
+namespace topology {
+
+    class NodeDomain {
+    public:
+        NodeDomain() { _last_id = 1; };
+
+        ~NodeDomain() {
+            for (auto *node: _nodes)
+                delete node;
+        }
+
+        auto *register_id(auto *node);
+
+        auto *register_id(auto &&node);
+
+        auto iterate_nodes() {
+            return _nodes.begin();
+        }
+
+    private:
+        int _last_id;
+
+        [[nodiscard]] const int make_id() { return _last_id++; }
+
+        std::vector<AbstractNode *> _nodes;
+    };
+
+    auto *NodeDomain::register_id(auto *node) {
+        node->set_id(make_id());
+        _nodes.push_back(node);
+        return node;
     }
 
-    auto* register_id(auto* node);
-    auto * register_id(auto && node);
-    auto iterate_nodes() {
-        return _nodes.begin();
+    auto *NodeDomain::register_id(auto &&node) {
+        node.set_id(make_id());
+        auto node_copy = new decltype(node)(node);
+        _nodes.push_back(node_copy);
+        return node_copy;
     }
-private:
-    int _last_id;
-    [[nodiscard]] const int make_id(){return _last_id++;}
-    std::vector <AbstractNode*> _nodes;
-};
 
-#endif //CPP__KONWAY_DOMAIN_H
+}
+
+#endif //CPP__CONWAY_DOMAIN_H
