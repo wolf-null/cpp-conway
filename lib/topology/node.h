@@ -6,9 +6,7 @@
 // Topology node role is a hint for various traverse mechanism telling what this node type exists for.
 
 struct TopologyNodeRole {
-    const bool HAS_VALUE;
-
-    explicit TopologyNodeRole(const bool HAS_VALUE_ = false) : HAS_VALUE{HAS_VALUE_} {};
+    bool has_value;
 };
 
 class AbstractTopologyNode {
@@ -19,20 +17,18 @@ public:
     const int MAX_NEIGHBOURS = 0;
 
     AbstractTopologyNode() = default;
-    AbstractTopologyNode(AbstractTopologyNode&) {
+    AbstractTopologyNode(AbstractTopologyNode&) : AbstractTopologyNode() {
         throw std::domain_error("Copy constructor for AbstractTopologyNode was not overridden!");
     }
     ~AbstractTopologyNode() = default;
 
     [[nodiscard]] const int id () const {return _id;}
-    [[nodiscard]] const TopologyNodeRole role() const {return _role;}
-    // Constants
+    [[nodiscard]] virtual const TopologyNodeRole role() const = 0;
+
     const int NOT_A_NEIGHBOR = -1;
 
-protected:
-    const TopologyNodeRole _role {false};
-
 private:
+
     void set_id(int id) {_id = id;}
     int _id = -1;
 

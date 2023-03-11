@@ -12,7 +12,7 @@
       2. Direct access. Use case: fast traverse for node visiting. Class ```LinearIndex```
  */
 
-#include "topology/node.cpp"
-#include "topology/domain.cpp"
+#include "topology/node.h"
+#include "topology/domain.h"
 #include "topology/summation_node.cpp"
 

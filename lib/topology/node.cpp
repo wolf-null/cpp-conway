@@ -5,14 +5,14 @@
 
 #include "node.h"
 
-template <const int MAX_NEIGHBOURS_>
+template <int MAX_NEIGHBOURS_>
 class TopologyNode : public AbstractTopologyNode{
 public:
     typedef AbstractTopologyNode::ValueType ValueType;
     typedef TopologyNode<MAX_NEIGHBOURS_> NodeType;
     const int MAX_NEIGHBOURS = MAX_NEIGHBOURS_;
 
-    TopologyNode() : AbstractTopologyNode() {}
+    TopologyNode() = default;
     ~TopologyNode() = default;
 
     decltype(auto) subscribeTo(auto *neighbour);
@@ -22,7 +22,10 @@ public:
 
     void printNeighbourIds();
 
+    [[nodiscard]] virtual const TopologyNodeRole role() const override {return TopologyNodeRole{.has_value=false};}
+
 protected:
+
     int _neighborCount = 0;
     TopologyNode <MAX_NEIGHBOURS_> * _neighbors [MAX_NEIGHBOURS_];
 
@@ -32,19 +35,26 @@ protected:
 
 };
 
-template <const int MAX_NEIGHBOURS_, class ValueType_>
+
+template <int MAX_NEIGHBOURS_, class ValueType_>
 class ValuedTopologyNode : public TopologyNode <MAX_NEIGHBOURS_> {
 public:
     typedef ValueType_ ValueType;
     typedef ValuedTopologyNode<MAX_NEIGHBOURS_, ValueType> NodeType;
     const int MAX_NEIGHBOURS = MAX_NEIGHBOURS_;
 
-    const ValueType& value(){return _value;};
-    void setValue(ValueType & value){ _value = value;}
+    ValuedTopologyNode(): TopologyNode<MAX_NEIGHBOURS_>() {setValue(ValueType_{});}
+    explicit ValuedTopologyNode(ValueType_ value) : TopologyNode<MAX_NEIGHBOURS_>() { setValue(value);}
+    ~ValuedTopologyNode() = default;
 
+    const ValueType& value(){return _value;};
+    void setValue(ValueType value){ _value = value;}
+
+    [[nodiscard]] virtual const TopologyNodeRole role() const override {return TopologyNodeRole{.has_value=true};}
 protected:
     ValueType _value;
-    const TopologyNodeRole _role {true};
+
+
 };
 
 // ----------------------------------------------- IMPLEMENTATION -----------------------------------------------------

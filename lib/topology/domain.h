@@ -17,6 +17,9 @@ public:
 
     auto* register_id(auto* node);
     auto * register_id(auto && node);
+    auto iterate_nodes() {
+        return _nodes.begin();
+    }
 private:
     int _last_id;
     [[nodiscard]] const int make_id(){return _last_id++;}
