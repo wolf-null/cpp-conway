@@ -7,7 +7,6 @@
 
 class TopologyNodeDomain
 {
-
 public:
     TopologyNodeDomain() {_last_id = 1;};
     ~TopologyNodeDomain() {
@@ -24,8 +23,6 @@ private:
     int _last_id;
     [[nodiscard]] const int make_id(){return _last_id++;}
     std::vector <AbstractTopologyNode*> _nodes;
-
 };
-
 
 #endif //CPP__KONWAY_DOMAIN_H

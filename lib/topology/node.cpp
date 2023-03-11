@@ -2,15 +2,14 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <array>
 
 #include "node.h"
 
-template <int MAX_NEIGHBOURS_>
-class TopologyNode : public AbstractTopologyNode{
+template <int C_MAX_NEIGHBOURS>
+class TopologyNode : public AbstractTopologyNode {
 public:
-    typedef AbstractTopologyNode::ValueType ValueType;
-    typedef TopologyNode<MAX_NEIGHBOURS_> NodeType;
-    const int MAX_NEIGHBOURS = MAX_NEIGHBOURS_;
+    static constexpr int MAX_NEIGHBOURS = C_MAX_NEIGHBOURS;
 
     TopologyNode() = default;
     ~TopologyNode() = default;
@@ -25,26 +24,20 @@ public:
     [[nodiscard]] virtual const TopologyNodeRole role() const override {return TopologyNodeRole{.has_value=false};}
 
 protected:
-
     int _neighborCount = 0;
-    TopologyNode <MAX_NEIGHBOURS_> * _neighbors [MAX_NEIGHBOURS_];
+
+    std::array <TopologyNode<MAX_NEIGHBOURS>*, MAX_NEIGHBOURS> _neighbors;
 
     int neighbourIndex(const auto *neighbor) const;
     decltype(auto) neighbourAt(const int neighborIndex = 0);
     decltype(auto) unsubscribeByIndex(const int neighborIndex = 0);
-
 };
 
-
-template <int MAX_NEIGHBOURS_, class ValueType_>
-class ValuedTopologyNode : public TopologyNode <MAX_NEIGHBOURS_> {
+template <int MAX_NEIGHBOURS, class ValueType>
+class ValuedTopologyNode : public TopologyNode <MAX_NEIGHBOURS> {
 public:
-    typedef ValueType_ ValueType;
-    typedef ValuedTopologyNode<MAX_NEIGHBOURS_, ValueType> NodeType;
-    const int MAX_NEIGHBOURS = MAX_NEIGHBOURS_;
-
-    ValuedTopologyNode(): TopologyNode<MAX_NEIGHBOURS_>() {setValue(ValueType_{});}
-    explicit ValuedTopologyNode(ValueType_ value) : TopologyNode<MAX_NEIGHBOURS_>() { setValue(value);}
+    ValuedTopologyNode(): TopologyNode<MAX_NEIGHBOURS>() {setValue(ValueType{});}
+    explicit ValuedTopologyNode(ValueType value) : TopologyNode<MAX_NEIGHBOURS>() { setValue(value);}
     ~ValuedTopologyNode() = default;
 
     const ValueType& value(){return _value;};
@@ -53,7 +46,6 @@ public:
     [[nodiscard]] virtual const TopologyNodeRole role() const override {return TopologyNodeRole{.has_value=true};}
 protected:
     ValueType _value;
-
 
 };
 
