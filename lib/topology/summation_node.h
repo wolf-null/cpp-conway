@@ -13,6 +13,7 @@ namespace topology {
         std::is_default_constructible<T>::value;
     };
 
+
     template<int MaxNeighbours, SummableType ValueType, ValueType summation_seed = ValueType{}>
     class SummationNode : public ValueNode<MaxNeighbours, ValueType> {
     public:

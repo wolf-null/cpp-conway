@@ -15,27 +15,22 @@ namespace topology {
 
     class AbstractNode {
     public:
-        AbstractNode() = default;
+        [[nodiscard]] virtual const NodeRole role() const = 0;
+        const int id() const { return _id; }
 
+        AbstractNode() = default;
         AbstractNode(AbstractNode &) : AbstractNode() {
             throw std::domain_error("Copy constructor for AbstractNode was not overridden!");
         }
-
         ~AbstractNode() = default;
-
-        [[nodiscard]] const int id() const { return _id; }
-
-        [[nodiscard]] virtual const NodeRole role() const = 0;
 
         const int NOT_A_NEIGHBOR = -1;
 
     private:
-
+        int _id = -1;
         void set_id(int id) { _id = id; }
 
-        int _id = -1;
-
-        friend class NodeDomain;
+        friend class NodeDomain; // NodeDomain uses set_id()
     };
 }
 

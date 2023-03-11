@@ -16,11 +16,11 @@ namespace topology_tests {
 
         const int MAX_NEIGHBORS = 3;
 
-        NodeDomain d;
+        auto d = new NodeDomain {};
 
-        auto *node_a = d.register_id(new SummationNode<MAX_NEIGHBORS, T, SeedValue>{a_value});
-        auto *node_b = d.register_id(new SummationNode<MAX_NEIGHBORS, T, SeedValue>{b_value});
-        auto *node_c = d.register_id(new Node<MAX_NEIGHBORS>{});
+        auto *node_a = d->register_id(new SummationNode<MAX_NEIGHBORS, T, SeedValue>{a_value});
+        auto *node_b = d->register_id(new SummationNode<MAX_NEIGHBORS, T, SeedValue>{b_value});
+        auto *node_c = d->register_id(new Node<MAX_NEIGHBORS>{});
 
         node_a->subscribe_to(node_a);
         node_a->subscribe_to(node_b);
@@ -30,6 +30,8 @@ namespace topology_tests {
         std::cout << "S = " << sum << "\n";
 
         assert (sum == a_value + b_value + SeedValue);
+
+        delete d;
     }
 }
 

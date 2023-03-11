@@ -10,14 +10,12 @@ namespace topology {
     class NodeDomain {
     public:
         NodeDomain() { _last_id = 1; };
-
         ~NodeDomain() {
             for (auto *node: _nodes)
                 delete node;
         }
 
         auto *register_id(auto *node);
-
         auto *register_id(auto &&node);
 
         auto iterate_nodes() {
@@ -25,11 +23,11 @@ namespace topology {
         }
 
     private:
+        std::vector<AbstractNode *> _nodes;
         int _last_id;
 
         [[nodiscard]] const int make_id() { return _last_id++; }
 
-        std::vector<AbstractNode *> _nodes;
     };
 
     auto *NodeDomain::register_id(auto *node) {
@@ -48,3 +46,4 @@ namespace topology {
 }
 
 #endif //CPP__CONWAY_DOMAIN_H
+

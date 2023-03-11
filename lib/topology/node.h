@@ -13,29 +13,24 @@ namespace topology {
     public:
         static constexpr int max_neighbours{MaxNeighbours};
 
-        Node() = default;
+        [[nodiscard]] virtual const NodeRole role() const override { return NodeRole{.has_value=false}; }
 
+        Node() = default;
         ~Node() = default;
 
         decltype(auto) subscribe_to(auto *neighbour);
-
         decltype(auto) unsubscribe_from(const auto *neighbor);
 
         int neighbour_count() { return neighbour_count_; }
 
         void print_neighbour_ids();
 
-        [[nodiscard]] virtual const NodeRole role() const override { return NodeRole{.has_value=false}; }
-
     protected:
         int neighbour_count_{0};
-
         std::array<Node<max_neighbours> *, max_neighbours> neighbors_;
 
         int neighbour_index(const auto *neighbor) const;
-
         decltype(auto) neighbour_at(const int neighborIndex = 0);
-
         decltype(auto) unsubscribe_by_index(const int neighborIndex = 0);
     };
 
