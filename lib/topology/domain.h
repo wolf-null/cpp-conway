@@ -22,7 +22,7 @@ public:
 private:
     int _last_id;
     [[nodiscard]] const int make_id(){return _last_id++;}
-    std::vector <AbstractTopologyNode*> _nodes;
+    std::vector <AbstractNode*> _nodes;
 };
 
 #endif //CPP__KONWAY_DOMAIN_H

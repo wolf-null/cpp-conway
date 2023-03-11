@@ -6,106 +6,106 @@
 
 #include "node.h"
 
-template <int C_MAX_NEIGHBOURS>
-class TopologyNode : public AbstractTopologyNode {
+template <int MaxNeighbours>
+class Node : public AbstractNode {
 public:
-    static constexpr int MAX_NEIGHBOURS = C_MAX_NEIGHBOURS;
+    static constexpr int max_neighbours {MaxNeighbours};
 
-    TopologyNode() = default;
-    ~TopologyNode() = default;
+    Node() = default;
+    ~Node() = default;
 
-    decltype(auto) subscribeTo(auto *neighbour);
-    decltype(auto) unsubscribeFrom(const auto *neighbor);
+    decltype(auto) subscribe_to(auto *neighbour);
+    decltype(auto) unsubscribe_from(const auto *neighbor);
 
-    int neighbourCount() {return _neighborCount;}
+    int neighbour_count() {return neighbour_count_;}
 
-    void printNeighbourIds();
+    void print_neighbour_ids();
 
     [[nodiscard]] virtual const TopologyNodeRole role() const override {return TopologyNodeRole{.has_value=false};}
 
 protected:
-    int _neighborCount = 0;
+    int neighbour_count_ {0};
 
-    std::array <TopologyNode<MAX_NEIGHBOURS>*, MAX_NEIGHBOURS> _neighbors;
+    std::array <Node<max_neighbours>*, max_neighbours> neighbors_;
 
-    int neighbourIndex(const auto *neighbor) const;
-    decltype(auto) neighbourAt(const int neighborIndex = 0);
-    decltype(auto) unsubscribeByIndex(const int neighborIndex = 0);
+    int neighbour_index(const auto *neighbor) const;
+    decltype(auto) neighbour_at(const int neighborIndex = 0);
+    decltype(auto) unsubscribe_by_index(const int neighborIndex = 0);
 };
 
-template <int MAX_NEIGHBOURS, class ValueType>
-class ValuedTopologyNode : public TopologyNode <MAX_NEIGHBOURS> {
+template <int MaxNeighbours, class ValueType>
+class ValueNode : public Node <MaxNeighbours> {
 public:
-    ValuedTopologyNode(): TopologyNode<MAX_NEIGHBOURS>() {setValue(ValueType{});}
-    explicit ValuedTopologyNode(ValueType value) : TopologyNode<MAX_NEIGHBOURS>() { setValue(value);}
-    ~ValuedTopologyNode() = default;
+    ValueNode(): Node<MaxNeighbours>() {setValue(ValueType{});}
+    explicit ValueNode(ValueType value) : Node<MaxNeighbours>() { setValue(value);}
+    ~ValueNode() = default;
 
-    const ValueType& value(){return _value;};
-    void setValue(ValueType value){ _value = value;}
+    const ValueType& value(){return value_;};
+    void setValue(ValueType value){ value_ = value;}
 
     [[nodiscard]] virtual const TopologyNodeRole role() const override {return TopologyNodeRole{.has_value=true};}
 protected:
-    ValueType _value;
+    ValueType value_;
 
 };
 
 // ----------------------------------------------- IMPLEMENTATION -----------------------------------------------------
 
-template <const int MAX_NEIGHBOURS>
-int TopologyNode<MAX_NEIGHBOURS>::neighbourIndex(const auto *neighbor) const {
-    for(int k = 0; k != _neighborCount; ++ k)
-        if (_neighbors[k] == neighbor)
+template <const int MaxNeighbours>
+int Node<MaxNeighbours>::neighbour_index(const auto *neighbor) const {
+    for(int k = 0; k != neighbour_count_; ++ k)
+        if (neighbors_[k] == neighbor)
             return k;
     return NOT_A_NEIGHBOR;
 }
 
-template <const int MAX_NEIGHBOURS>
-decltype(auto) TopologyNode<MAX_NEIGHBOURS>::neighbourAt(const int neighborIndex){
-    return _neighbors[neighborIndex];
+template <const int MaxNeighbours>
+decltype(auto) Node<MaxNeighbours>::neighbour_at(const int neighborIndex){
+    return neighbors_[neighborIndex];
 }
 
-template <const int MAX_NEIGHBOURS>
-decltype(auto) TopologyNode<MAX_NEIGHBOURS>::subscribeTo(auto *neighbour){
-    if (_neighborCount == MAX_NEIGHBOURS)
+template <const int MaxNeighbours>
+decltype(auto) Node<MaxNeighbours>::subscribe_to(auto *neighbour){
+    if (neighbour_count_ == max_neighbours)
         throw std::out_of_range("Attempt to add neighbor exceeds MAX_NEIGHBOURS_ constant");
-    _neighbors[_neighborCount] = neighbour;
-    _neighborCount ++;
+    neighbors_[neighbour_count_] = neighbour;
+    neighbour_count_ ++;
     return this;
 }
 
-template <const int MAX_NEIGHBOURS>
-decltype(auto) TopologyNode<MAX_NEIGHBOURS>::unsubscribeByIndex(const int neighborIndex){
+template <const int MaxNeighbours>
+decltype(auto) Node<MaxNeighbours>::unsubscribe_by_index(const int neighborIndex){
     if (neighborIndex == NOT_A_NEIGHBOR)
         throw std::out_of_range("Attempt to delete NOT_A_NEIGHBOUR");
 
     if (neighborIndex < 0)
-        throw std::out_of_range("Attempt to unsubscribeByIndex index < 0");
+        throw std::out_of_range("Attempt to unsubscribe_by_index index < 0");
 
-    if (neighborIndex >= _neighborCount)
+    if (neighborIndex >= neighbour_count_)
         throw std::out_of_range("Attempt to removeNeighbor index exceeding neighbor count");
 
-    auto deletedNeighbour = neighbourAt(neighborIndex);
+    auto deletedNeighbour = neighbour_at(neighborIndex);
 
-    for(int k = neighborIndex; k < _neighborCount - 1; ++ k)
-        _neighbors[k] = _neighbors[k + 1];
-    -- _neighborCount;
+    for(int k = neighborIndex; k < neighbour_count_ - 1; ++ k)
+        neighbors_[k] = neighbors_[k + 1];
+    -- neighbour_count_;
 
     return deletedNeighbour;
 }
 
-template <const int MAX_NEIGHBOURS>
-decltype(auto) TopologyNode<MAX_NEIGHBOURS>::unsubscribeFrom(const auto *neighbor){
-    const int neighborIndex = neighbourIndex(neighbor);
+template <const int MaxNeighbours>
+decltype(auto) Node<MaxNeighbours>::unsubscribe_from(const auto *neighbor){
+    const int neighborIndex = neighbour_index(neighbor);
     if (neighborIndex == NOT_A_NEIGHBOR)
         throw std::out_of_range("Attempt to removeNeighbor neighbor which is not subscribed");
-    unsubscribeByIndex(neighborIndex);
+    unsubscribe_by_index(neighborIndex);
     return this;
 }
 
-template <const int MAX_NEIGHBOURS>
-void TopologyNode<MAX_NEIGHBOURS>::printNeighbourIds(){
+template <const int MaxNeighbours>
+void Node<MaxNeighbours>::print_neighbour_ids(){
     std::cout << id() << ": {";
-    for(int i = 0; i != _neighborCount; ++ i)
-        std::cout << neighbourAt(i)->id() << (i + 1 == _neighborCount ? "" : ", " ) ;
+    for(int i = 0; i != neighbour_count_; ++ i)
+        std::cout << neighbour_at(i)->id() << (i + 1 == neighbour_count_ ? "" : ", " ) ;
     std::cout << "}\n";
 }

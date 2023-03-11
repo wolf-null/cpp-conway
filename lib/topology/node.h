@@ -9,18 +9,18 @@ struct TopologyNodeRole {
     bool has_value;
 };
 
-class AbstractTopologyNode {
+class AbstractNode {
 public:
     // TypeHints must be overridden in all concrete implementations
     typedef int ValueType;
-    typedef AbstractTopologyNode NodeType;
+    typedef AbstractNode NodeType;
     const int MAX_NEIGHBOURS = 0;
 
-    AbstractTopologyNode() = default;
-    AbstractTopologyNode(AbstractTopologyNode&) : AbstractTopologyNode() {
-        throw std::domain_error("Copy constructor for AbstractTopologyNode was not overridden!");
+    AbstractNode() = default;
+    AbstractNode(AbstractNode&) : AbstractNode() {
+        throw std::domain_error("Copy constructor for AbstractNode was not overridden!");
     }
-    ~AbstractTopologyNode() = default;
+    ~AbstractNode() = default;
 
     [[nodiscard]] const int id () const {return _id;}
     [[nodiscard]] virtual const TopologyNodeRole role() const = 0;

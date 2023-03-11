@@ -1,7 +1,7 @@
 ### Performance ###
 #### Neighbour traverse ####
 Which one is faster?
-* Dynamic ```_neighborCount<=MAX_NEIGHBOURS_```. Neighbor removal O(N).
+* Dynamic ```neighbour_count_<=MAX_NEIGHBOURS_```. Neighbor removal O(N).
 * Dynamic count=```MAX_NEIGHBOURS_```. Neighbor removal O(1) -> nullptr.
 
 ### Conway ###
@@ -40,15 +40,15 @@ Which one is faster?
 Probably not all nodes has value.
 *Solutions for traversing nodes:*
   1. Reserve value anyway. Set it to zero (could cause arithmetic problems when "zero is not zero")
-  2. Add compile-time constant property ```.has_value```  for ```TopologyNode``` 
-  3. Inherit ```TopologyNodeWithValue``` from ```TopologyNode``` and use ```std::derived_from``` during indexing
+  2. Add compile-time constant property ```.has_value```  for ```Node``` 
+  3. Inherit ```TopologyNodeWithValue``` from ```Node``` and use ```std::derived_from``` during indexing
 
 *Bad arch*
 Having non-abstract base interface class indicates current solution (template derived from interface) to be bad formed.
 Question: why do we need that abstract interface at the moment?
 Answer: To build ```TopologyNodeDomain``` class. In particular: having NodeType explicitly allows it to declare 
 Objection: 
-   - ```NodeDomain``` could probably build multiple types of ```TopologyNode```s and inheritors.
+   - ```NodeDomain``` could probably build multiple types of ```Node```s and inheritors.
    - But all it needs a-priori is a specific interface
    - But the return type of the interface is not fixed
    - Actually all NodeDomain needs is access to constructor and destructor
@@ -67,11 +67,11 @@ Propositions:
 knowing certain class of implementation. It also allows to store vector of a base class only.
 - Setting node id requires only one method: set id
 - Creation of a node implies having direct access to NodeDomain. So node creation is possible only if domain instance is accessible from the "creation point"
-- Overloading TopologyNode with NodeDomain is not a good idea because of template args overcomplication.
+- Overloading Node with NodeDomain is not a good idea because of template args overcomplication.
 
 Conclusion:
-- Nodes are inherited from abstract class ```AbstractTopologyNode``` which has _id property, constructor and destructor (non-virtual).
-- ```TopologyNodeDomain``` has method const int register_id(```AbstractTopologyNode&&```) which saves it into own array, sets the id and returns a pointer to registred object
+- Nodes are inherited from abstract class ```AbstractNode``` which has _id property, constructor and destructor (non-virtual).
+- ```TopologyNodeDomain``` has method const int register_id(```AbstractNode&&```) which saves it into own array, sets the id and returns a pointer to registred object
 Two scenarios:
 1. ConcreteTopologyNode constructor receives TopologyNodeDomain as an argument. It then reqiest an ID for itself by ```register_id(this)```
    - Possible problem: nothing guarantees lifetime of ConcreteTopologyNodeInstance 

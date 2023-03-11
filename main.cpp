@@ -11,6 +11,7 @@
 
 int main()
 {
+
     summation_node_test::_test_neighbour_sum<int, 2>(1, 2);
     return 0;
 }

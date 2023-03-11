@@ -10,23 +10,23 @@
 #include "topology/summation_node.cpp"
 
 namespace summation_node_test {
-    template <class T, T seed_value = T{}>
+    template <class T, T SeedValue = T{}>
     void _test_neighbour_sum(const T a_value, const T b_value) {
         const int MAX_NEIGHBORS = 3;
 
         TopologyNodeDomain d;
 
-        auto *node_a = d.register_id(new SummationTopologyNode<MAX_NEIGHBORS, T, seed_value>{a_value});
-        auto *node_b = d.register_id(new SummationTopologyNode<MAX_NEIGHBORS, T, seed_value>{b_value});
-        auto *node_c = d.register_id(new TopologyNode<MAX_NEIGHBORS>{});
+        auto *node_a = d.register_id(new SummationTopologyNode<MAX_NEIGHBORS, T, SeedValue>{a_value});
+        auto *node_b = d.register_id(new SummationTopologyNode<MAX_NEIGHBORS, T, SeedValue>{b_value});
+        auto *node_c = d.register_id(new Node<MAX_NEIGHBORS>{});
 
-        node_a->subscribeTo(node_a);
-        node_a->subscribeTo(node_b);
-        node_a->subscribeTo(node_c);
+        node_a->subscribe_to(node_a);
+        node_a->subscribe_to(node_b);
+        node_a->subscribe_to(node_c);
 
         int sum = node_a->accumulate_neighbours();
         std::cout << "S = " << sum << "\n";
 
-        assert (sum == a_value + b_value + seed_value);
+        assert (sum == a_value + b_value + SeedValue);
     }
-};
+}
