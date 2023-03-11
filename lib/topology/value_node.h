@@ -9,15 +9,12 @@ namespace topology {
     template<int MaxNeighbours, class ValueType>
     class ValueNode : public Node<MaxNeighbours> {
     public:
-        ValueNode() : Node<MaxNeighbours>() { setValue(ValueType{}); }
-
-        explicit ValueNode(ValueType value) : Node<MaxNeighbours>() { setValue(value); }
-
+        ValueNode() : Node<MaxNeighbours>() { set_value(ValueType{}); }
+        explicit ValueNode(ValueType value) : Node<MaxNeighbours>() { set_value(value); }
         ~ValueNode() = default;
 
         const ValueType &value() { return value_; };
-
-        void setValue(ValueType value) { value_ = value; }
+        void set_value(ValueType value) { value_ = value; }
 
         [[nodiscard]] virtual const NodeRole role() const override { return NodeRole{.has_value=true}; }
 
