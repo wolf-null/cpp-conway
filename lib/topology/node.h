@@ -8,12 +8,20 @@
 #include "abstract_node.h"
 
 namespace topology {
+
     template<int MaxNeighbours>
     class Node : public AbstractNode {
     public:
-        static constexpr int max_neighbours{MaxNeighbours};
+        struct NodeRole : public AbstractNodeRole{
+            NodeRole() = default;
+            bool has_value;
+            static constexpr int max_neighbours = MaxNeighbours;
+        };
+        virtual AbstractNodeRole* role() const override {
+            return static_cast <AbstractNodeRole*> (new NodeRole{.has_value=false});
+        }
 
-        [[nodiscard]] virtual const NodeRole role() const override { return NodeRole{.has_value=false}; }
+        static constexpr int max_neighbours{MaxNeighbours};
 
         Node() = default;
         ~Node() = default;

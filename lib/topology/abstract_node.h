@@ -5,17 +5,24 @@
 
 namespace topology {
 
-    struct NodeRole {
-        /* NodeRole holds additional info which can be access before casting AbstractNode to concrete Node subclasses */
-
-        bool has_value;
+    struct AbstractNodeRole {
+        /* NodeRole holds additional info which can be accessed before casting AbstractNode to concrete Node subclasses */
+        bool has_value;  // TODO: REFACTOR --> virtual func
         // ~ Tells if the concrete Node has .value() and .set_value() methods
+
+        static constexpr int max_neighbours = 0;
     };
 
 
     class AbstractNode {
     public:
-        [[nodiscard]] virtual const NodeRole role() const = 0;
+        virtual AbstractNodeRole* role() const = 0;
+        AbstractNodeRole* get_role() {
+            if (role_cache == nullptr)
+                role_cache = role();
+            return role_cache;
+        }
+
         const int id() const { return _id; }
 
         AbstractNode() = default;
@@ -31,6 +38,8 @@ namespace topology {
         void set_id(int id) { _id = id; }
 
         friend class NodeDomain; // NodeDomain uses set_id()
+
+        AbstractNodeRole * role_cache = nullptr;
     };
 }
 

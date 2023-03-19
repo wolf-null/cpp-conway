@@ -7,46 +7,53 @@
 
 namespace topology {
 
-    template<class T> concept SummableType = requires(T a, T b) {
-        { a + b } -> std::convertible_to<T>;
-        std::is_copy_constructible<T>::value;
-        std::is_default_constructible<T>::value;
+template<class T> concept SummableType = requires(T a, T b) {
+    { a + b } -> std::convertible_to<T>;
+    std::is_copy_constructible<T>::value;
+    std::is_default_constructible<T>::value;
+};
+
+
+template<int MaxNeighbours, SummableType ValueType, ValueType summation_seed = ValueType{}>
+class SummationNode : public ValueNode<MaxNeighbours, ValueType> {
+public:
+    struct NodeRole : public AbstractNodeRole{
+        NodeRole() = default;
+        bool has_value;
+        static constexpr int max_neighbours = MaxNeighbours;
     };
+    virtual const AbstractNodeRole *role() const override { return new NodeRole{.has_value=true}; }
 
+    explicit SummationNode(ValueType value = ValueType{}) : ValueNode<MaxNeighbours, ValueType>(value) {};
 
-    template<int MaxNeighbours, SummableType ValueType, ValueType summation_seed = ValueType{}>
-    class SummationNode : public ValueNode<MaxNeighbours, ValueType> {
-    public:
-        explicit SummationNode(ValueType value = ValueType{}) : ValueNode<MaxNeighbours, ValueType>(value) {};
+    ~SummationNode() = default;
 
-        ~SummationNode() = default;
+    ValueType accumulate_neighbours();
 
-        ValueType accumulate_neighbours();
+protected:
+    using ValueNode<MaxNeighbours, ValueType>::neighbour_count_;
+    using ValueNode<MaxNeighbours, ValueType>::neighbors_;
+    using ValueNode<MaxNeighbours, ValueType>::value;
 
-        [[nodiscard]] virtual const NodeRole role() const override { return NodeRole{.has_value=true}; }
+};
 
-    protected:
-        using ValueNode<MaxNeighbours, ValueType>::neighbour_count_;
-        using ValueNode<MaxNeighbours, ValueType>::neighbors_;
-        using ValueNode<MaxNeighbours, ValueType>::value;
+// -------------------------------------- IMPLEMENTATION -----------------------------------------------------------
 
-    };
+template<int MaxNeighbours, SummableType ValueType, ValueType summation_seed>
+ValueType SummationNode<MaxNeighbours, ValueType, summation_seed>::accumulate_neighbours() {
+    ValueType sum{summation_seed};
 
-    template<int MaxNeighbours, SummableType ValueType, ValueType summation_seed>
-    ValueType SummationNode<MaxNeighbours, ValueType, summation_seed>::accumulate_neighbours() {
-        ValueType sum{summation_seed};
-
-        if (neighbour_count_ == 0)
-            return sum;
-
-        for (int idx = 0; idx != neighbour_count_; ++idx) {
-            if (!neighbors_[idx]->role().has_value)
-                continue;
-
-            sum += static_cast<ValueNode<MaxNeighbours, ValueType> *> (neighbors_[idx])->value();
-        }
+    if (neighbour_count_ == 0)
         return sum;
+
+    for (int idx = 0; idx != neighbour_count_; ++idx) {
+        if (!neighbors_[idx]->role().has_value)
+            continue;
+
+        sum += static_cast<ValueNode<MaxNeighbours, ValueType> *> (neighbors_[idx])->value();
     }
+    return sum;
+}
 
 }
 
