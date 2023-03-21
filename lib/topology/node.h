@@ -1,106 +1,104 @@
+//
+// Created by Mann on 20.03.2023.
+//
+
 #ifndef CPP__CONWAY_NODE_H
 #define CPP__CONWAY_NODE_H
 
-#include <stdexcept>
-#include <array>
-#include <iostream>
+#include <vector>
+#include <cassert>
+#include <functional>
 
-#include "abstract_node.h"
+template <typename ValueType>
+void neighbor_reduce(std::function<ValueType(ValueType, ValueType)> func, ValueType init_val=ValueType{});
 
-namespace topology {
+enum ValueTypeID {
+    UNDEFINED = 0,
+    INT = 1
+};
 
-    template<int MaxNeighbours>
-    class Node : public AbstractNode {
-    public:
-        struct NodeRole : public AbstractNodeRole{
-            NodeRole() = default;
-            bool has_value;
-            static constexpr int max_neighbours = MaxNeighbours;
-        };
-        virtual AbstractNodeRole* role() const override {
-            return static_cast <AbstractNodeRole*> (new NodeRole{.has_value=false});
+struct ValueDescription {
+    ValueTypeID type_id;
+};
+
+struct NodeState {
+
+    bool can_evaluate;
+};
+
+class Node {
+    /*
+     Core Node ideas:
+        - A node has neighbour nodes
+        - A node has a pointer to its value (without specifying value type).
+                - This "value" is an external entity, can be only assigned to a node.
+        - Since there is a different kind of nodes (inheritors), a node have a field to denote which type of node it is
+                - The more general approach is to use non-constant node "roles"
+                        + Create NodeRole class
+        - Since value is not controlled by a Node and represented via pointer (void*) there should be a description of
+                type of the value. The best would be a type, but there is no way to pass types as arguments which
+                is usable in operations like static_cast, this is why conversion of the void* value is up to user,
+                but this value_helper might be useful.
+     */
+
+private:
+    ValueDescription value_description_;
+
+    void * value_ptr_;
+
+    NodeState state_;
+
+public:
+    std::vector <Node*> neighbors_; // TODO: Write an iterator for neighbors
+
+    ValueDescription value_description(ValueDescription d){return value_description_;}
+    void set_value_description(ValueDescription d){value_description_ = d;}
+
+    void* value_ptr() const {return value_ptr_;}
+    void set_value_ptr(void * ptr) {value_ptr_ = ptr;}
+    void set_value_ptr(void * ptr, ValueDescription d) {value_ptr_ = ptr; set_value_description(d);}
+
+    const NodeState& state() const {return state_;};
+    void set_state(NodeState state) {state_ = state;}
+
+    template <typename ValueType>
+    ValueType neighbor_reduce(const std::function<ValueType(ValueType, ValueType)>& func, ValueType init_val=ValueType{}) {
+        ValueType result = init_val;
+        for (const Node * neighbor : neighbors_) {
+            result = func(result, *static_cast<ValueType*>(neighbor->value_ptr()));
         }
-
-        static constexpr int max_neighbours{MaxNeighbours};
-
-        Node() = default;
-        ~Node() = default;
-
-        decltype(auto) subscribe_to(auto *neighbour);
-        decltype(auto) unsubscribe_from(const auto *neighbor);
-
-        int neighbour_count() { return neighbour_count_; }
-
-        void print_neighbour_ids();
-
-    protected:
-        int neighbour_count_{0};
-        std::array<Node<max_neighbours> *, max_neighbours> neighbors_;
-
-        int neighbour_index(const auto *neighbor) const;
-        decltype(auto) neighbour_at(const int neighborIndex = 0);
-        decltype(auto) unsubscribe_by_index(const int neighborIndex = 0);
-    };
-
-// ----------------------------------------------- IMPLEMENTATION -----------------------------------------------------
-
-    template<const int MaxNeighbours>
-    int Node<MaxNeighbours>::neighbour_index(const auto *neighbor) const {
-        for (int k = 0; k != neighbour_count_; ++k)
-            if (neighbors_[k] == neighbor)
-                return k;
-        return NOT_A_NEIGHBOR;
+        return result;
     }
 
-    template<const int MaxNeighbours>
-    decltype(auto) Node<MaxNeighbours>::neighbour_at(const int neighborIndex) {
-        return neighbors_[neighborIndex];
+    template <typename ValueType>
+    ValueType& neighbor_reduce(const std::function<ValueType&(ValueType&, ValueType&)>& func, ValueType &init_val=ValueType{}) {
+        ValueType & result = init_val;
+        for (const Node * neighbor : neighbors_) {
+            result = func(result, *static_cast<ValueType*>(neighbor->value_ptr()));
+        }
+        return result;
     }
 
-    template<const int MaxNeighbours>
-    decltype(auto) Node<MaxNeighbours>::subscribe_to(auto *neighbour) {
-        if (neighbour_count_ == max_neighbours)
-            throw std::out_of_range("Attempt to add neighbor exceeds MAX_NEIGHBOURS_ constant");
-        neighbors_[neighbour_count_] = neighbour;
-        neighbour_count_++;
-        return this;
+    template <typename ValueType>
+    ValueType& neighbor_reduce(const std::function<ValueType&(ValueType&, ValueType&)>& func, const std::function<bool(ValueType&)> &filter, ValueType &init_val=ValueType{}) {
+        ValueType & result = init_val;
+        for (const Node * neighbor : neighbors_) {
+            if (!filter(*static_cast<ValueType*>(neighbor->value_ptr())))
+                continue;
+            result = func(result, *static_cast<ValueType*>(neighbor->value_ptr()));
+        }
+        return result;
     }
 
-    template<const int MaxNeighbours>
-    decltype(auto) Node<MaxNeighbours>::unsubscribe_by_index(const int neighborIndex) {
-        if (neighborIndex == NOT_A_NEIGHBOR)
-            throw std::out_of_range("Attempt to delete NOT_A_NEIGHBOUR");
-
-        if (neighborIndex < 0)
-            throw std::out_of_range("Attempt to unsubscribe_by_index index < 0");
-
-        if (neighborIndex >= neighbour_count_)
-            throw std::out_of_range("Attempt to removeNeighbor index exceeding neighbor count");
-
-        auto deletedNeighbour = neighbour_at(neighborIndex);
-
-        for (int k = neighborIndex; k < neighbour_count_ - 1; ++k)
-            neighbors_[k] = neighbors_[k + 1];
-        --neighbour_count_;
-
-        return deletedNeighbour;
+    template <typename ValueType>
+    static ValueType& node_reduce(std::vector<Node*> &&nodes, const std::function<ValueType&(ValueType&, ValueType&)>& func, ValueType &&init_val=ValueType{}) {
+        ValueType & result = init_val;
+        for (const Node * neighbor : nodes) {
+            result = func(result, *static_cast<ValueType*>(neighbor->value_ptr()));
+        }
+        return result;
     }
 
-    template<const int MaxNeighbours>
-    decltype(auto) Node<MaxNeighbours>::unsubscribe_from(const auto *neighbor) {
-        const int neighborIndex = neighbour_index(neighbor);
-        if (neighborIndex == NOT_A_NEIGHBOR)
-            throw std::out_of_range("Attempt to removeNeighbor neighbor which is not subscribed");
-        unsubscribe_by_index(neighborIndex);
-        return this;
-    }
+};
 
-    template<const int MaxNeighbours>
-    void Node<MaxNeighbours>::print_neighbour_ids() {
-        std::cout << id() << ": {";
-        for (int i = 0; i != neighbour_count_; ++i)
-            std::cout << neighbour_at(i)->id() << (i + 1 == neighbour_count_ ? "" : ", ");
-        std::cout << "}\n";
-    }
-}
 #endif //CPP__CONWAY_NODE_H
