@@ -42,23 +42,58 @@ class Node {
      */
 
 private:
+
     ValueDescription value_description_;
 
     void * value_ptr_;
 
     NodeState state_;
 
+    int id_;
+
+
+
+protected:
+    friend class Domain;
+    void set_id(int id) {id_ = id;}
+
 public:
+    static int last_auto_id;
+    int auto_id;
+
+    explicit Node() {
+        auto_id = last_auto_id;
+        last_auto_id ++;
+    };
+
+    Node(Node&& node) : Node() {
+        value_ptr_ = node.value_ptr_;
+        node.value_ptr_ = nullptr;
+    }
+
+    Node(Node& node) : Node() {
+        value_ptr_ = node.value_ptr_;
+        node.value_ptr_ = nullptr;
+    }
+
+    Node operator = (Node && val) = delete;
+
+    ~Node() {};
+
+    int id() {return id_;}
+
     std::vector <Node*> neighbors_; // TODO: Write an iterator for neighbors
 
     ValueDescription value_description(ValueDescription d){return value_description_;}
     void set_value_description(ValueDescription d){value_description_ = d;}
 
     void* value_ptr() const {return value_ptr_;}
-    void set_value_ptr(void * ptr) {value_ptr_ = ptr;}
+    void set_value_ptr(void * ptr) {
+        value_ptr_ = ptr;
+    }
     void set_value_ptr(void * ptr, ValueDescription d) {value_ptr_ = ptr; set_value_description(d);}
 
-    const NodeState& state() const {return state_;};
+    const NodeState& state() const {return state_;}
     void set_state(NodeState state) {state_ = state;}
 
     template <typename ValueType>
@@ -100,5 +135,7 @@ public:
     }
 
 };
+
+int Node::last_auto_id = 0;
 
 #endif //CPP__CONWAY_NODE_H
