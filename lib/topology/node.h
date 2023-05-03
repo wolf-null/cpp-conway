@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "modernize-use-nodiscard"
 //
 // Created by Mann on 20.03.2023.
 //
@@ -22,7 +24,6 @@ struct ValueDescription {
 };
 
 struct NodeState {
-
     bool can_evaluate;
 };
 
@@ -51,19 +52,17 @@ private:
 
     int id_;
 
-
-
 protected:
     friend class Domain;
     void set_id(int id) {id_ = id;}
 
 public:
-    static int last_auto_id;
-    int auto_id;
+    std::vector <Node*> neighbors_; // TODO: Write an iterator for neighbors
+
+    // Structural ------------------------------------------------------------------------------------------------------
 
     explicit Node() {
-        auto_id = last_auto_id;
-        last_auto_id ++;
+        value_ptr_ = nullptr;
     };
 
     Node(Node&& node) : Node() {
@@ -78,23 +77,44 @@ public:
 
     Node operator = (Node && val) = delete;
 
-    ~Node() {};
+    ~Node() = default;
 
-    int id() {return id_;}
+    // Behavioral ------------------------------------------------------------------------------------------------------
 
-    std::vector <Node*> neighbors_; // TODO: Write an iterator for neighbors
+    const int id() const {
+        return id_;
+    }
 
-    ValueDescription value_description(ValueDescription d){return value_description_;}
-    void set_value_description(ValueDescription d){value_description_ = d;}
+    const ValueDescription& value_description(ValueDescription d) {
+        return value_description_;
+    }
 
-    void* value_ptr() const {return value_ptr_;}
+    void set_value_description(ValueDescription d) {
+        value_description_ = d;
+    }
+
+    void* value_ptr() const {
+        return value_ptr_;
+    }
+
     void set_value_ptr(void * ptr) {
         value_ptr_ = ptr;
     }
-    void set_value_ptr(void * ptr, ValueDescription d) {value_ptr_ = ptr; set_value_description(d);}
 
-    const NodeState& state() const {return state_;}
-    void set_state(NodeState state) {state_ = state;}
+    void set_value_ptr(void * ptr, ValueDescription d) {
+        value_ptr_ = ptr;
+        set_value_description(d);
+    }
+
+    const NodeState& state() const {
+        return state_;
+    }
+
+    void set_state(NodeState state) {
+        state_ = state;
+    }
+
+    // Functional ------------------------------------------------------------------------------------------------------
 
     template <typename ValueType>
     ValueType neighbor_reduce(const std::function<ValueType(ValueType, ValueType)>& func, ValueType init_val=ValueType{}) {
@@ -136,6 +156,6 @@ public:
 
 };
 
-int Node::last_auto_id = 0;
-
 #endif //CPP__CONWAY_NODE_H
+
+#pragma clang diagnostic pop
