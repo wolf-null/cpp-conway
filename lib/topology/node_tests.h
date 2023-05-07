@@ -6,104 +6,139 @@
 #define CPP__CONWAY_NODE_TESTS_H
 
 #include "node.h"
+#include <iostream>
+#include <stdexcept>
 
+namespace topology {
 
-void test_node_state() {
-    NodeState s{.can_evaluate=true};
-    s.can_evaluate = false;
-    Node node;
-    node.set_state(s);
-    NodeState p{node.state()};
-    assert (p.can_evaluate == false);
-    p.can_evaluate = true;
-    assert (p.can_evaluate == true);
-}
+struct NodeTest {
+    class TestingNode : public Node {
+    public:
+        explicit TestingNode() : Node() {
+            std::cout << "\tcreate node " << this << "\n";
+        }
 
-void test_value_basetype() {
-    Node node;
-    node.set_value_ptr(static_cast<void*> (new int {10}), ValueDescription({.type_id=ValueTypeID::INT}));
-    int val = *static_cast<int*> (node.value_ptr());
-    assert(val == 10);
-}
+        explicit TestingNode(void * value_ptr) : TestingNode(){
+            set_value_ptr(value_ptr);
+        }
 
-void test_value_struct() {
-    struct TestVirtualStruct {
-        int value = 10;
-        virtual int do_something_abstract(int val) = 0;
-        void do_something() {value = do_something_abstract(value);}
+        ~TestingNode(){
+            std::cout << "\tdelete node " << this << "\n";
+        }
     };
 
-    struct TestStructA : public TestVirtualStruct {
-        virtual int do_something_abstract(int val) override {return val + 1;}
+    class test_failure : public std::exception {
+    private:
+        const std::string exc_message_;
+    public:
+        explicit test_failure(std::string &&description) : std::exception(), exc_message_{std::move(description)} {};
+        [[nodiscard]] const char* what() const noexcept override {
+            return exc_message_.c_str();
+        }
     };
 
-    struct TestStructB : public TestVirtualStruct {
-        int custom_term = 10;
-        virtual int do_something_abstract(int val) override {return val + custom_term;}
-        int anything = 12431234;
-    };
 
-    Node node;
-    TestStructA * str = new TestStructA();
-    node.set_value_ptr(str);
-    TestVirtualStruct * ostr = static_cast<TestVirtualStruct*> (node.value_ptr());
-    ostr->do_something();
+    static void test_neighbor_duplication(){
+        std::cout << "TEST: test_neighbor_duplication\n";
+        std::cout << "\n\ninit nodes\n";
+        TestingNode node_a((void*)(new int(10)));
+        TestingNode node_b((void*)(new int(20)));
+        TestingNode node_c((void*)(new int(30)));
 
-    assert(str->value == 11);
+        std::cout << "\n\nadd neighbors\n";
+        node_a.add_neighbor(&node_b);
+        node_a.add_neighbor(&node_c);
 
-    Node node2;
-    TestStructB * str2 = new TestStructB();
-    node2.set_value_ptr(str2);
-    TestVirtualStruct * ostr2 = static_cast<TestVirtualStruct*> (node2.value_ptr());
-    ostr2->do_something();
+        std::cout << "\n\ncheck neighbor doubling prevention\t";
+        try {
+            node_a.add_neighbor(&node_b);
+            std::cout << "FAILED\n";
+            throw test_failure("Adding already added Node didn't thrown an exception!");
+        }
+        catch (std::logic_error & exc) {
+            std::cout << "OK\n";
+        }
 
-    assert(str2->value == 20);
-}
+        std::cout << "removing all neighbors from a\t";
+        node_a.remove_all_neighbors();
+        std::cout << "OK\n";
 
-void test_neighbor_reduce_lval(){
-    Node a; a.set_value_ptr(new int (1));
-    Node b; b.set_value_ptr(new int (10));
-    Node c; c.set_value_ptr(new int (100));
+        std::cout << "TEST FINISHED: test_neighbor_duplication\n";
 
-    a.neighbors_.push_back(&a);
-    a.neighbors_.push_back(&b);
-    a.neighbors_.push_back(&c);
+    }
 
-    auto func = [](int a, int b) -> int {return a + b;};
-    int result = a.neighbor_reduce<int>(func);
+    static void test_neighbor_reduction() {
+        std::cout << "TEST: test_neighbor_reduction\n";
+        std::cout << "Init nodes\n";
 
-    assert (result == 111);
-
-    auto func2 = [](int& a, int &b) -> int& {a += b; return a;};
-    int base_val2 = 1000;
-    int result2 = a.neighbor_reduce<int>(func2, base_val2);
-
-    assert (result2 == 1111);
-    assert (base_val2 == 1111);
-}
+        const int base_value_a = 10;
+        const int base_value_b = 20;
+        const int base_value_c = 30;
+        const int base_value_sum = base_value_a + base_value_b + base_value_c;
 
 
-void test_neighbor_reduce_selected(){
-    Node a; a.set_value_ptr(new int (1));
-    Node b; b.set_value_ptr(new int (10));
-    Node c; c.set_value_ptr(new int (100));
+        int value_a = base_value_a;
+        int value_b = base_value_b;
+        int value_c = base_value_c;
 
-    a.neighbors_.push_back(&a);
-    a.neighbors_.push_back(&b);
-    a.neighbors_.push_back(&c);
+        TestingNode noda_a(&value_a);
+        TestingNode noda_b(&value_b);
+        TestingNode noda_c(&value_c);
 
-    auto func2 = [](int& a, int &b) -> int& {a += b; return a;};
-    int result2 = Node::node_reduce<int>(std::move(a.neighbors_), func2, 1000);
+        noda_a.add_neighbor(&noda_a);
+        noda_a.add_neighbor(&noda_b);
+        noda_a.add_neighbor(&noda_c);
 
-    assert (result2 == 1111);
-}
+        auto summator = [] (int& accumulated, int& value)-> void  {
+            std::cout << "\tsummator\t";
+            std::cout << "(" << accumulated << " += " << value << ")\n";
+            accumulated += value;
+        };
 
-void test() {
-    test_node_state();
-    test_value_basetype();
-    test_value_struct();
-    test_neighbor_reduce_lval();
+        std::cout << "Reducing\t";
+
+        int sum = noda_a.neighbor_reduce<int>(summator, 0);
+
+        std::cout << "OK\n";
+
+        std::cout << "Resulted sum is " << sum << " must be equal to " << base_value_sum << "\n";
+        assert(sum == base_value_sum);
+
+
+        std::cout << "Check the origin values didn't change\t";
+        assert(value_a == base_value_a);
+        assert(value_b == base_value_b);
+        assert(value_c == base_value_c);
+        std::cout << "OK\n";
+
+        std::cout << "TEST FINISHED: test_neighbor_reduction\n";
+    }
+
+    static void test_neighbor_destruction() {
+        std::cout << "TEST: test_neighbor_destruction\n";
+        std::cout << "\n\ninit nodes\n";
+        auto node_a = new TestingNode (((void*)(new int(10))));
+        TestingNode node_b((void*)(new int(20)));
+        TestingNode node_c((void*)(new int(30)));
+
+        std::cout << "\n\nadd neighbors\n";
+        node_a->add_neighbor(&node_b);
+        node_a->add_neighbor(&node_c);
+
+        delete node_a;
+
+        std::cout << "TEST FINISHED: test_neighbor_destruction\n";
+    }
+
+    static void test_all() {
+        test_neighbor_duplication();
+        test_neighbor_reduction();
+        std::cout << "\nALL TESTS PASSED\n";
+    }
+};
+
 }
 
 
 #endif //CPP__CONWAY_NODE_TESTS_H
+

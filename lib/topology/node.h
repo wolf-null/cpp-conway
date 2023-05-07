@@ -10,72 +10,57 @@
 #include <vector>
 #include <cassert>
 #include <functional>
+#include <algorithm>
+#include <stdexcept>
 
-template <typename ValueType>
-void neighbor_reduce(std::function<ValueType(ValueType, ValueType)> func, ValueType init_val=ValueType{});
+namespace topology {
 
-enum ValueTypeID {
-    UNDEFINED = 0,
-    INT = 1
-};
 
-struct ValueDescription {
-    ValueTypeID type_id;
-};
+template<typename ValueType>
+void neighbor_reduce(std::function<ValueType(ValueType, ValueType)> func, ValueType init_val = ValueType{});
 
-struct NodeState {
-    bool can_evaluate;
-};
 
 class Node {
     /*
-     Core Node ideas:
-        - A node has neighbour nodes
-        - A node has a pointer to its value (without specifying value type).
-                - This "value" is an external entity, can be only assigned to a node.
-        - Since there is a different kind of nodes (inheritors), a node have a field to denote which type of node it is
-                - The more general approach is to use non-constant node "roles"
-                        + Create NodeRole class
-        - Since value is not controlled by a Node and represented via pointer (void*) there should be a description of
-                type of the value. The best would be a type, but there is no way to pass types as arguments which
-                is usable in operations like static_cast, this is why conversion of the void* value is up to user,
-                but this value_helper might be useful.
+        TODO:
+            - [ ] value allocator template
      */
 
 private:
 
-    ValueDescription value_description_;
-
-    void * value_ptr_;
-
-    NodeState state_;
+    void *value_ptr_;
 
     int id_;
 
 protected:
-    friend class Domain;
-    void set_id(int id) {id_ = id;}
+    void set_id(int id) {
+        id_ = id;
+    }
 
 public:
-    std::vector <Node*> neighbors_; // TODO: Write an iterator for neighbors
+    std::vector<Node *> neighbors_; // TODO: Write an iterator for neighbors
 
-    // Structural ------------------------------------------------------------------------------------------------------
+    // Construction / Destruction --------------------------------------------------------------------------------------
 
     explicit Node() {
         value_ptr_ = nullptr;
     };
 
-    Node(Node&& node) : Node() {
+    Node(Node &&node) : Node() {
         value_ptr_ = node.value_ptr_;
         node.value_ptr_ = nullptr;
     }
 
-    Node(Node& node) : Node() {
+    Node(Node &node) : Node() {
         value_ptr_ = node.value_ptr_;
         node.value_ptr_ = nullptr;
     }
 
-    Node operator = (Node && val) = delete;
+    Node(void * value_ptr) : Node(){
+        set_value_ptr(value_ptr);
+    }
+
+    Node operator=(Node &&val) = delete;
 
     ~Node() = default;
 
@@ -85,76 +70,57 @@ public:
         return id_;
     }
 
-    const ValueDescription& value_description(ValueDescription d) {
-        return value_description_;
-    }
-
-    void set_value_description(ValueDescription d) {
-        value_description_ = d;
-    }
-
-    void* value_ptr() const {
+    void *value_ptr() const {
         return value_ptr_;
     }
 
-    void set_value_ptr(void * ptr) {
+    void set_value_ptr(void *ptr) {
         value_ptr_ = ptr;
     }
 
-    void set_value_ptr(void * ptr, ValueDescription d) {
-        value_ptr_ = ptr;
-        set_value_description(d);
+    // Structural ------------------------------------------------------------------------------------------------------
+    void add_neighbor(Node * node) {
+        if(has_neighbor(node)) throw std::logic_error("Trying to add already added node " + std::to_string(size_t(node)) + " with id " + std::to_string(node->id()));
+        neighbors_.emplace_back(node);
     }
 
-    const NodeState& state() const {
-        return state_;
+    bool has_neighbor(Node * node) {
+        return std::find(neighbors_.begin(), neighbors_.end(), node) != neighbors_.end();
     }
 
-    void set_state(NodeState state) {
-        state_ = state;
+    void remove_neighbor(Node * node) {
+        std::remove(neighbors_.begin(), neighbors_.end(), node);
+    }
+
+    void remove_all_neighbors() {
+        neighbors_.clear();
     }
 
     // Functional ------------------------------------------------------------------------------------------------------
 
-    template <typename ValueType>
-    ValueType neighbor_reduce(const std::function<ValueType(ValueType, ValueType)>& func, ValueType init_val=ValueType{}) {
+    template<typename ValueType>
+    ValueType neighbor_reduce(const std::function<void(ValueType &, ValueType &)> &func,
+                              ValueType init_val = ValueType{}) {
         ValueType result = init_val;
-        for (const Node * neighbor : neighbors_) {
-            result = func(result, *static_cast<ValueType*>(neighbor->value_ptr()));
+        for (const Node *neighbor: neighbors_) {
+            func(result, *static_cast<ValueType *>(neighbor->value_ptr()));
         }
         return result;
     }
 
-    template <typename ValueType>
-    ValueType& neighbor_reduce(const std::function<ValueType&(ValueType&, ValueType&)>& func, ValueType &init_val=ValueType{}) {
-        ValueType & result = init_val;
-        for (const Node * neighbor : neighbors_) {
-            result = func(result, *static_cast<ValueType*>(neighbor->value_ptr()));
+    void neighbor_map(const std::function<void(Node*)> &func) {
+        for(Node* neighbor: neighbors_) {
+            func(neighbor);
         }
-        return result;
-    }
-
-    template <typename ValueType>
-    ValueType& neighbor_reduce(const std::function<ValueType&(ValueType&, ValueType&)>& func, const std::function<bool(ValueType&)> &filter, ValueType &init_val=ValueType{}) {
-        ValueType & result = init_val;
-        for (const Node * neighbor : neighbors_) {
-            if (!filter(*static_cast<ValueType*>(neighbor->value_ptr())))
-                continue;
-            result = func(result, *static_cast<ValueType*>(neighbor->value_ptr()));
-        }
-        return result;
-    }
-
-    template <typename ValueType>
-    static ValueType& node_reduce(std::vector<Node*> &&nodes, const std::function<ValueType&(ValueType&, ValueType&)>& func, ValueType &&init_val=ValueType{}) {
-        ValueType & result = init_val;
-        for (const Node * neighbor : nodes) {
-            result = func(result, *static_cast<ValueType*>(neighbor->value_ptr()));
-        }
-        return result;
     }
 
 };
+
+auto sum = [] (int& accumulated, int& value)-> void  {
+    accumulated += value;
+};
+
+} // namespace topology
 
 #endif //CPP__CONWAY_NODE_H
 
