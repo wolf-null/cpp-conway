@@ -1,7 +1,3 @@
-//
-// Created by Mann on 20.03.2023.
-//
-
 #ifndef CPP__CONWAY_NODE_TESTS_H
 #define CPP__CONWAY_NODE_TESTS_H
 
