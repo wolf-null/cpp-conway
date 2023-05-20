@@ -26,30 +26,20 @@ class AbstractTaxicabIndex2DModel {
     Index size_;
     IJ shape_;
 
-    static constexpr bool DEBUG = true;
-
 protected:
     void set_size_(Index size){
         size_ = size;
-        if constexpr (DEBUG)
-            std::cout << "\t\t\tsize of " << this << " is set to " << size << "\n";
     }
 
     const Index get_size_() const {
-        if constexpr (DEBUG)
-            std::cout << "\t\t\tsize of " << this << " is " << size_ << "\n";
         return size_;
     }
 
     void set_shape_(IJ shape) {
         shape_ = shape;
-        if constexpr (DEBUG)
-            std::cout << "\t\t\tshape of " << this << " is set to " << shape << "\n";
     }
 
     const IJ get_shape_() const {
-        if constexpr (DEBUG)
-            std::cout << "\t\t\tshape of " << this << " is " << shape_ << "\n";
         return shape_;
     }
 
@@ -58,11 +48,6 @@ public:
 
     virtual const Index get_size() const {
         return get_size_();
-    }
-
-    [[deprecated]] virtual void set_size(Index size){
-        set_size_(size);
-        set_shape_(coordinate_of(get_size_()));
     }
 
     // -- Shape
@@ -77,8 +62,6 @@ public:
     }
 
     // -- Constructors
-
-    //explicit AbstractTaxicabIndex2DModel() = delete;
 
     // These methods must be implemented ---------------------------------------------------------------------
 
