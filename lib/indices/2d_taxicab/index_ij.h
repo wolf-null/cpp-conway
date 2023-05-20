@@ -4,7 +4,7 @@
 #include "indices/property.h"
 
 
-typedef size_t Index;
+typedef int Index;
 
 struct IJ{
     [[no_unique_address]] Property <int> i;
@@ -16,6 +16,10 @@ struct IJ{
     friend std::ostream& operator << (std::ostream& ostream, const IJ& index) {
         ostream << "(" << index.i.get() << ", " << index.j.get() << ")";
         return ostream;
+    }
+
+    bool operator == (const IJ& other) const {
+        return other.i.get() == i.get() && other.j.get() == j.get();
     }
 };
 
