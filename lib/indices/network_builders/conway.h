@@ -1,0 +1,4 @@
+#ifndef CPP__CONWAY_CONWAY_H
+#define CPP__CONWAY_CONWAY_H
+
+#endif //CPP__CONWAY_CONWAY_H

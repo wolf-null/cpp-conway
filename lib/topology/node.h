@@ -24,7 +24,7 @@ private:
     }
 
 public:
-    std::vector<Node *> neighbors_; // TODO: Write an iterator for neighbors
+    std::vector<Node *> neighbors_;
 
     // Construction / Destruction --------------------------------------------------------------------------------------
 
