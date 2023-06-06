@@ -1,19 +1,11 @@
-
-
 #include <iostream>
-#include <vector>
-#include <array>
-#include <cassert>
 #include <map>
 #include <set>
-#include <algorithm>
 
 #include "indices/index_models/taxicab_padding.h"
 #include "topology/node.h"
 #include "indices/network_builders/conway.h"
 #include "indices/neighborhood_models/conway.h"
-
-#include "topology/node_tests.h"
 
 
 int main(int argc, char* argv[]) {

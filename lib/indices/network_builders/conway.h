@@ -21,10 +21,7 @@ public:
         neighborhood_model_{neighborhood_model}
     {}
 
-
-
     void build_neighborhood() {
-        // TODO: Initialize nodes
         auto connect_neighbors = [this] (IJ coord) -> void {
             if (coord.state.get() == IJState::PADDING)
                 return;
@@ -35,7 +32,6 @@ public:
             for (auto neighbor_coord : neighbors) {
                 auto * neighbor_node = index_model_->get_node(neighbor_coord);
                 node->add_neighbor(neighbor_node);
-                // std::cout << "join " << node << " to " << neighbor_node;
             }
         };
         index_model_->map_IJ(connect_neighbors);
