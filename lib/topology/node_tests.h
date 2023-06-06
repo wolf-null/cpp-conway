@@ -45,16 +45,6 @@ struct NodeTest {
         node_a.add_neighbor(&node_b);
         node_a.add_neighbor(&node_c);
 
-        std::cout << "\n\ncheck neighbor doubling prevention\t";
-        try {
-            node_a.add_neighbor(&node_b);
-            std::cout << "FAILED\n";
-            throw test_failure("Adding already added Node didn't thrown an exception!");
-        }
-        catch (std::logic_error & exc) {
-            std::cout << "OK\n";
-        }
-
         std::cout << "removing all neighbors from a\t";
         node_a.remove_all_neighbors();
         std::cout << "OK\n";

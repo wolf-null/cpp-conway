@@ -1,25 +1,26 @@
-#ifndef CPP__CONWAY_CONWAY_H
-#define CPP__CONWAY_CONWAY_H
+#pragma once
 
-#include <forward_list>
+#include <vector>
 
 #include "indices/neighborhood_model.h"
 
 class ConwayNeighborhoodModel : public NeighborhoodModel {
 public:
-    virtual std::forward_list<IJ> && neighbor_indices_of(IJ index) override {
-        std::forward_list <IJ> result;
+    virtual std::vector<IJ> neighbor_indices_of(IJ index) override {
+        std::vector <IJ> result;
+
+        if (!index.is_valid())
+            return result;
+
         for (int i = -1; i <= 1; ++ i) {
-            for (int j = -1; j != 1; ++j) {
-                if (i == j) {
+            for (int j = -1; j <= 1; ++j) {
+                if (i == 0 && j == 0) [[unlikely]] {
                     continue;
                 }
 
                 result.emplace_back (i + index.i.get(), j + index.j.get());
             }
         }
-        return std::move(result);
+        return result;
     }
 };
-
-#endif //CPP__CONWAY_CONWAY_H
