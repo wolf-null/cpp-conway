@@ -1,5 +1,5 @@
-#ifndef CPP__CONWAY_PROPERTY_H
-#define CPP__CONWAY_PROPERTY_H
+#ifndef CPP__CONWAY_PROPERTY_HPP
+#define CPP__CONWAY_PROPERTY_HPP
 
 #include <cstdlib>
 #include <ostream>
@@ -18,4 +18,4 @@ public:
 };
 
 
-#endif //CPP__CONWAY_PROPERTY_H
+#endif //CPP__CONWAY_PROPERTY_HPP

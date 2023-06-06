@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "indices/neighborhood_model.h"
+#include "indices/neighborhood_model.hpp"
 
 class ConwayNeighborhoodModel : public NeighborhoodModel {
 public:

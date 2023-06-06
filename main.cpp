@@ -2,10 +2,10 @@
 #include <map>
 #include <set>
 
-#include "indices/index_models/taxicab_padding.h"
-#include "topology/node.h"
-#include "indices/network_builders/conway.h"
-#include "indices/neighborhood_models/conway.h"
+#include "indices/index_models/taxicab_with_padding.hpp"
+#include "topology/node.hpp"
+#include "indices/network_builders/conway_netbuilder.hpp"
+#include "indices/neighborhood_models/conway_neighbors.hpp"
 
 
 int main(int argc, char* argv[]) {

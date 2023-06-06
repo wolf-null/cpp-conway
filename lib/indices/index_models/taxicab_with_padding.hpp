@@ -1,7 +1,7 @@
-#ifndef CPP__CONWAY_TAXICAB_PADDING_H
-#define CPP__CONWAY_TAXICAB_PADDING_H
+#ifndef CPP__CONWAY_TAXICAB_WITH_PADDING_HPP
+#define CPP__CONWAY_TAXICAB_WITH_PADDING_HPP
 
-#include "indices/index_model.h"
+#include "indices/index_model.hpp"
 
 class TaxicabWithPaddingIndexModel : public IndexModel {
 public:
@@ -65,4 +65,4 @@ public:
 
 const IJ TaxicabWithPaddingIndexModel::PADDING_COORD {0, 0, IJState::PADDING};
 
-#endif //CPP__CONWAY_TAXICAB_PADDING_H
+#endif //CPP__CONWAY_TAXICAB_WITH_PADDING_HPP

@@ -4,7 +4,7 @@
 #include <vector>
 #include <functional>
 
-#include "indices/ij.h"
+#include "indices/ij.hpp"
 
 class NeighborhoodModel {
 public:

@@ -1,7 +1,7 @@
-#ifndef CPP__CONWAY_NODE_TESTS_H
-#define CPP__CONWAY_NODE_TESTS_H
+#ifndef CPP__CONWAY_NODE__TESTS_HPP
+#define CPP__CONWAY_NODE__TESTS_HPP
 
-#include "node.h"
+#include "node.hpp"
 #include <iostream>
 #include <stdexcept>
 
@@ -126,5 +126,5 @@ struct NodeTest {
 }
 
 
-#endif //CPP__CONWAY_NODE_TESTS_H
+#endif //CPP__CONWAY_NODE__TESTS_HPP
 
