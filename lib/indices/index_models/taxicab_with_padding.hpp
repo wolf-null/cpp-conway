@@ -21,7 +21,7 @@ public:
         return false;
     }
 
-    virtual const Index index_of(const IJ coord) const override {
+    Index index_of(const IJ coord) const override {
         if (coord.state.get() == IJState::PADDING)
             return PADDING_INDEX;
 
@@ -31,7 +31,7 @@ public:
         return CELL_INDEX_ORIGIN + coord.i.get() * get_shape().j.get() + coord.j.get();
     }
 
-    virtual const IJ coordinate_of(const Index idx) const override {
+    IJ coordinate_of(const Index idx) const override {
         if (idx == PADDING_INDEX)
             return PADDING_COORD;
 
@@ -54,11 +54,11 @@ public:
     // ------------------------------------------------ Padding node ---------------------------------------------------
 
     const topology::Node* get_padding_node() const {
-        return get_node(PADDING_INDEX);
+        return NodeContainer::get_node(PADDING_INDEX);
     }
 
     void set_padding_node(topology::Node* node) {
-        set_node(node, PADDING_INDEX);
+        NodeContainer::set_node(node, PADDING_INDEX);
     }
 
 };
