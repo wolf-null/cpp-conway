@@ -50,7 +50,6 @@ struct NodeTest {
         std::cout << "OK\n";
 
         std::cout << "TEST FINISHED: test_neighbor_duplication\n";
-
     }
 
     static void test_neighbor_reduction() {

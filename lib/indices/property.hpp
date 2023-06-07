@@ -1,5 +1,4 @@
-#ifndef CPP__CONWAY_PROPERTY_HPP
-#define CPP__CONWAY_PROPERTY_HPP
+#pragma once
 
 #include <cstdlib>
 #include <ostream>
@@ -17,5 +16,3 @@ public:
     Property<T>& operator = (T coord) {set(coord);}
 };
 
-
-#endif //CPP__CONWAY_PROPERTY_HPP

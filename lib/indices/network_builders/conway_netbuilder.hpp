@@ -2,9 +2,9 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "indices/index_model.hpp"
+#include "indices/index_model.h"
 #include "indices/neighborhood_model.hpp"
-#include "indices/ij.hpp"
+#include "indices/ij.h"
 
 class ConwayNetworkBuilder {
 private:

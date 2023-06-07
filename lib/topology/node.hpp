@@ -1,5 +1,4 @@
-#ifndef CPP__CONWAY_NODE_HPP
-#define CPP__CONWAY_NODE_HPP
+#pragma once
 
 #include <vector>
 #include <cassert>
@@ -96,13 +95,5 @@ public:
 };
 
 // Stuff ---------------------------------------------------------------------------------------------------------------
-auto sum = [] (int& accumulated, int& value)-> void  {
-    accumulated += value;
-};
-
 
 } // namespace topology
-
-#endif //CPP__CONWAY_NODE_HPP
-
-//#pragma clang diagnostic pop
