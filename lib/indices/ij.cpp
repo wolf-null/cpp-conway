@@ -15,6 +15,9 @@ bool IJ::operator == (const IJ& other) const {
     if (state.get() == IJState::INVALID || other.state.get() == IJState::INVALID)
         return false;
 
+    if (state.get() == IJState::PADDING && other.state.get() == IJState::PADDING)
+        return true;
+
     return other.i.get() == i.get() && other.j.get() == j.get() && state.get() == other.state.get();
 }
 
