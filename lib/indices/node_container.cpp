@@ -49,6 +49,8 @@ Index NodeContainer::index_of(topology::Node * node) {
 // -- Node access ----------------------------------------------------------------------------------
 
 topology::Node* NodeContainer::get_node(const Index idx) const {
+    if (idx < 0 || get_size() <= idx)
+        throw std::range_error("index " + std::to_string(idx) + " is out of range 0.." + std::to_string(get_size()));
     return nodes_->at(idx);
 }
 

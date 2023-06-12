@@ -21,9 +21,19 @@
  */
 using Index = int;
 
+
+/**
+ * A class for containing Nodes.
+ *
+ * Not responsible for construction/initialization of nodes and for their destruction,
+ * Since topology::Node is more like an interface, it's implementations might have initialization
+ * of any complexity, which can't be beforehand-covered by a constructor.
+ *
+ * TODO: Securify contained Node ownership.
+ */
 class NodeContainer {
 public:
-    using VectorOfNodes = std::vector <topology::Node*>;
+    using VectorOfNodes = std::vector <topology::Node*>;  /**< TODO: Refactor to shared_ptr<*/
 
 private:
     Index size_;
@@ -36,7 +46,7 @@ protected:
     void set_size_(Index size);
     Index get_size_() const;
 
-    virtual void set_nodes_hook(VectorOfNodes * old_nodes, VectorOfNodes * new_nodes) {}
+    virtual void set_nodes_hook(VectorOfNodes * old_nodes, VectorOfNodes * new_nodes) {} /**< Triggered when set_nodes is called*/
 
 
 public:
@@ -54,7 +64,7 @@ public:
 
     // -- Traverse --
 
-    void map_nodes(std::function<void (topology::Node*)> func) const;
+    void map_nodes(std::function<void (topology::Node*)> func) const; /**< apply void func(Node) to all contained nodes*/
 
     // -- Access --
 
@@ -62,7 +72,7 @@ public:
 
     void set_nodes(VectorOfNodes * nodes);
 
-    topology::Node* get_node(const Index idx) const ;
+    topology::Node* get_node(const Index idx) const ; /**< returns Node* by index, throws std::range_error if out of range. NOTE: Node at idx can be not initialized, so nullptr doesn't mean out of range.*/
 
     void set_node(topology::Node * node, const Index idx) ;
 

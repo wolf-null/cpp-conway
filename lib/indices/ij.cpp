@@ -8,7 +8,7 @@ std::ostream& operator << (std::ostream& ostream, const IJ& index) {
 
 
 std::string IJ::to_string() const {
-    return "(" + std::to_string(i.get()) + ", " + std::to_string(j.get()) + ", " +  std::to_string(state.get()) + ")";
+    return "[" + std::to_string(i.get()) + ", " + std::to_string(j.get()) + ", " +  std::to_string(state.get()) + "]";
 }
 
 bool IJ::operator == (const IJ& other) const {

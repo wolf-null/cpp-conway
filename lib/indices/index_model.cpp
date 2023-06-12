@@ -53,10 +53,14 @@ IJ IndexModel::coordinate_of(topology::Node * node) {
 // -- Node access ----------------------------------------------------------------------------------
 
 topology::Node* IndexModel::get_node(const IJ coord) const {
+    if (coord.state.get() == IJState::INVALID)
+        throw std::range_error("Trying to get node by coordinate with state IJState::INVALID: " + coord.to_string());
     return NodeContainer::get_node(index_of(coord));
 }
 
 void IndexModel::set_node(topology::Node * node, const IJ coord) {
+    if (coord.state.get() == IJState::INVALID)
+        throw std::range_error("Trying to set node by coordinate with state IJState::INVALID: " + coord.to_string());
     auto idx = index_of(coord);
     NodeContainer::set_node(node, idx);
 }
@@ -67,16 +71,24 @@ void IndexModel::set_node(topology::Node * node, const IJ coord) {
 std::string IndexModel::neighborhood_to_str() {
     std::string result = "[\n";
     auto f = [&result, this] (IJ coord) -> void {
-        result += "[" + coord.to_string() + ",\t[";
+        result += "  {\n    \"node\": " + coord.to_string() + ",\n    \"neighbors\": [ ";
         auto * node = this->get_node(coord);
-        for (auto *neighbor : node->neighbors_) {
-            IJ neighbor_coordinate = coordinate_of(neighbor);
-            result += neighbor_coordinate.to_string() + ", ";
+
+        if (!node->neighbors_.empty()) {
+            for (auto *neighbor: node->neighbors_) {
+                IJ neighbor_coordinate = coordinate_of(neighbor);
+                result += neighbor_coordinate.to_string() + ", ";
+            }
+            result.pop_back();
+            result.pop_back();
         }
-        result += "],\n";
+        result += " ]\n  }, \n";
     };
 
     map_IJ(f);
-    result += "]";
+    result.pop_back();
+    result.pop_back();
+    result.pop_back();
+    result += "\n]";
     return result;
 }

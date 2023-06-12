@@ -33,8 +33,8 @@ enum IJState {
  * Note: Naming "IJ" instead of "Coordinate2D" is dur to convenience (less to type)
  */
 struct IJ {
-    [[no_unique_address]] Property <int> i; /**< IJ.i - first coordinate, usually for column number */
-    [[no_unique_address]] Property <int> j; /**< IJ.j - second coordinate, usually for row number */
+    [[no_unique_address]] Property <int> i; /**< IJ.i - first coordinate, usually for row number */
+    [[no_unique_address]] Property <int> j; /**< IJ.j - second coordinate, usually for column number */
     [[no_unique_address]] Property <IJState> state; /**< Coordinate state. See IJState for documentation */
 
     explicit IJ() = default;

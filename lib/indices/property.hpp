@@ -3,6 +3,11 @@
 #include <cstdlib>
 #include <ostream>
 
+/**
+ * Coordinate property
+ * Provides general get/set interface for property access.
+ * TODO: Do we really need this one? This is not Python
+ * */
 template <typename T>
 class Property {
     T coord_;
